@@ -5,64 +5,91 @@ class Hangman:
     pass
     #Initializing attributes
     def __init__(self):
-        #set list of possible_words
+        #set attritubres
         self.possible_words = ['becode', 'learning', 'mathematics', 'sessions']
-        #randomise a word from possible_word as the word_to_find
         self.word_to_find = list(random.choice(self.possible_words))
-        #set number of lives to 5
         self.lives = 5
-        #set display board of correct letters as a list of underscore elements
         self.correctly_guessed_letters = []
         for letter in self.word_to_find:
             self.correctly_guessed_letters.append("_")
-        #create an empty list to store incorrect guesses
         self.wrongly_guessed_letters = []
-        #set turn and error count to zero
         self.turn_count = 0
-        self.incorrect_guess_count = 0
 
-    #Start the game loop and check whether win/loss conditions are met
+    #Start the game loop and check whether win/loss conditions are met. Load respective method.
     def game_start(self):
-        if self.lives > 0 and "_" in self.correctly_guessed_letters():
-           self.play()
-        elif self.lives > 0 and "_" not in self.correctly_guessed_letters:
-            self.You_win()
+        print("You have" , self.lives , "live(s) remaining.")
+        print("Current progress:" , *self.correctly_guessed_letters)
+        print("You have already used these letters:" , *self.wrongly_guessed_letters)
+        if self.lives > 0: 
+            if "_" in self.correctly_guessed_letters:
+                self.play()
+            elif "_" not in self.correctly_guessed_letters:
+                self.You_win()
         else:
             self.You_lose()
-        #Print a status update of the game
-        print("You have" , self.lives , "lives remaining.")
-        print("Current progress:" , self.correctly_guessed_letters)
-        print("You have taken" , self.incorrect_guess_count , "guesses so far")
-        print("You have already used these letters:" , self.wrongly_guessed_letters)
 
     #Manage a game turn and update the turn/board status 
     ###INCOMPLETE - need to work on enumeration and indexing
     def play(self):
-        guess = input("Please enter a letter as your guess:")
-        if checkvalidity(guess) == False:
-            play()
+        guess = input("\nPlease enter a letter as your guess: ")
+        #checks validity of input. Sends user back to input if invalid
+        while self.checkvalidity(guess) == False:
+            print("\nError. Please enter a single lowercase letter that hasn't been guessed yet.")
+            print("You have" , self.lives , "live(s) remaining.")
+            print("Current progress:" , *self.correctly_guessed_letters)
+            print("You have already used these letters:" , *self.wrongly_guessed_letters)
+            self.play()
+        guess = guess.lower()
+        #checks whether the guess is in the secret word. Increases turn counter. Replaces dash in correctly_guessed_letters with the guess, in the correct position.
+        if guess in self.word_to_find:
+            print("\nCorrect!", guess , "is in the secret word!")
+            self.turn_count += 1
+            for position , correct_letter in enumerate(self.word_to_find):
+                if guess == correct_letter:
+                    self.correctly_guessed_letters[position] = guess
+            self.game_start()
+        #checks whether guess isn't in word_to_find, then increases turn_counter and incorrect_guess_count, and reduces lives
+        #Appends the incorrect guess to wrongly_guessed_letters
+        elif guess not in self.word_to_find:
+            self.turn_count += 1
+            #self.incorrect_guess_count += 1
+            self.lives -= 1
+            self.wrongly_guessed_letters.append(guess)
+            print("\nIncorrect guess.")
+            self.game_start()
         else:
-            if guess in self.word_to_find:
+            pass
+         
+
+
+                                    
 
     ##Win function
     def You_win(self):
-        return print("Congratulations you have won inside" , self.turn_count , "attempts!")
+        self.correctly_guessed_letters = []
+        self.wrongly_guessed_letters = []
+        print("\nCongratulations you have won with" , self.lives , "live(s) remaining!")
+        return quit()
+        
     
     ##Lose function
     def You_lose(self):
-        return print("You lose. Too bad! Try again next time.")
+        self.correctly_guessed_letters = []
+        self.wrongly_guessed_letters = []
+        print("\nOut of lives! You lose. Too bad. Better luck next time.")
+        return quit()
 
     ##An attempt at checking validity. 
     ## Not yet tested.
-    def checkvalidity(self):
-        guess = list(guess)
+    def checkvalidity(self , guess):
         if len(guess) != 1:
             return False
-        elif guess[0] != type(str):
+        elif guess.isalpha() != True:
+            return False
+        elif guess in self.wrongly_guessed_letters:
+            return False
+        elif guess in self.correctly_guessed_letters:
             return False
         else:
             return True
 
-
-        
-#Test = Hangman()
